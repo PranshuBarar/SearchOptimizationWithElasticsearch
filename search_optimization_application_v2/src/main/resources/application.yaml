@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: search_optimization_application_v2
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/search_optimization_db_v2?createDatabaseIfNotExist=true
+    username: root
+    password: pranshubarar
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.MySQLDialect
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+  data:
+    elasticsearch:
+      cluster_nodes: "http://localhost:9200"
+      repositories:
+        enabled: true
+
+
+
+
+
+
+
+
+
+
+
+#
+#elastic:
+#  entityKeys:
+#    user: userId
+#    note: noteId
