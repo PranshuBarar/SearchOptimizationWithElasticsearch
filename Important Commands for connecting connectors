@@ -1,0 +1,58 @@
+for checking whether kafka connect is ready or not: curl -H "Accept:application/json" localhost:8083/
+for listing all the connectors:  curl -H "Accept:application/json" localhost:8083/connectors/
+
+commands for connecting all the connectors:
+
+for attaching debezium connector to kafka connect: 
+curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d @mysql-debezium-config.json
+
+for attaching users table connector to kafka connect:
+curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d @sink-config-for-shared_notes-table.json
+
+for attaching notes table connector to kafka connect:
+curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d @sink-config-for-notes-table.json
+
+for attaching shared_notes table connector to kafka connect:
+curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d @sink-config-for-users-table.json
+
+for deleting connectors:
+curl -X DELETE http://localhost:8083/connectors/elasticsearch-sink-connector-for-notes
+curl -X DELETE http://localhost:8083/connectors/elasticsearch-sink-connector-for-shared_notes
+curl -X DELETE http://localhost:8083/connectors/elasticsearch-sink-connector-for-users
+
+
+
+
+=================================================================================
+As I have already setup Docker Compose so this is useless for now, so ignore this
+=================================================================================
+
+
+spin up elasticsearch: 
+docker run -it --rm --name elasticsearch   -p 9200:9200   -e discovery.type=single-node   -e ES_JAVA_OPTS="-Xms2g -Xmx2g"   docker.elastic.co/elasticsearch/elasticsearch:7.15.2
+
+
+We can spin up watchers also for demonstration: 
+
+docker run -it --rm --name watcher --link zookeeper:zookeeper --link kafka:kafka quay.io/debezium/kafka:2.7 watch-topic -a -k dbserver1.search_optimization_db.users
+
+docker run -it --rm --name watcher --link zookeeper:zookeeper --link kafka:kafka quay.io/debezium/kafka:2.7 watch-topic -a -k dbserver1.search_optimization_db.notes
+
+docker run -it --rm --name watcher --link zookeeper:zookeeper --link kafka:kafka quay.io/debezium/kafka:2.7 watch-topic -a -k dbserver1.search_optimization_db.shared_notes
+
+curl -X POST "http://localhost:9200/_search" -H "Content-Type: application/json" -d ' 
+{
+  "query": {
+    "query_string": {
+      "query": "pranshu~"
+    }
+  }
+}' | jq .
+
+docker run -it --rm --name zookeeper -p 2181:2181 -p 2888:2888 -p 3888:3888 quay.io/debezium/zookeeper:2.7
+
+docker run -it --rm --name kafka -p 9092:9092 --link zookeeper:zookeeper quay.io/debezium/kafka:2.7
+
+docker run -it --rm --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=pranshubarar mysql:8.2
+
+docker run -it --rm --name connect -p 8083:8083 -e GROUP_ID=1 -e CONFIG_STORAGE_TOPIC=my_connect_configs -e OFFSET_STORAGE_TOPIC=my_connect_offsets -e STATUS_STORAGE_TOPIC=my_connect_statuses --link kafka:kafka --link mysql:mysql quay.io/debezium/connect:2.7

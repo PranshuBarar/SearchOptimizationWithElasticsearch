@@ -1,0 +1,72 @@
+{
+  // Name of the Kafka Connect connector for tracking MySQL changes.
+  "name": "search-engine-optimize-connector", 
+  "config": {
+
+    // Specifies the connector class, here using Debezium's MySQL Connector.
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",  
+    
+    // The maximum number of tasks that this connector will execute concurrently. Set to 1 to run on a single thread.
+    "tasks.max": "1",  
+    
+    // Hostname of the MySQL database server.
+    "database.hostname": "mysql",  
+
+    // Port number of the MySQL instance.
+    "database.port": "3306",
+
+    // Username for accessing the MySQL database.
+    "database.user": "root",  
+
+    // Password for the MySQL user.
+    "database.password": "<passwordhere>",
+
+    // Unique server ID for MySQL replication purposes. It must be unique within the MySQL cluster.
+    "database.server.id": "184054",
+
+    // Prefix to be used for the Kafka topics to which the changes will be published.
+    "topic.prefix": "dbserver1",
+    
+    // Logical name for the MySQL server, used to differentiate from other database servers in the Kafka topics.
+    "database.server.name": "dbserver1",
+
+    // List of databases to be included in the stream of changes (only `search_optimization_db` in this case).
+    "database.include.list": "search_optimization_db",
+
+    //==========================================
+    // Configuration for tracking schema changes
+    //==========================================
+    // The Kafka broker address used for schema history storage.
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+
+    // Kafka topic for storing schema history information.
+    "schema.history.internal.kafka.topic": "schemahistory.search_optimization_db",
+    
+    //===================================
+    // Configuration for database history
+    //===================================
+    // Kafka topic where database history is stored (used for recovery).
+    "database.history.kafka.topic": "history.search_optimization_db",
+
+    // Kafka broker address for the database history topic.
+    "database.history.kafka.bootstrap.servers": "kafka:9092",
+    
+    //=========================================
+    // Key converter settings for Kafka Connect
+    //=========================================
+    // Specifies that the key will be converted to JSON format.
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    
+    // Enables schema inclusion in the key JSON object.
+    "key.converter.schemas.enable": "true",
+
+    //===========================================
+    // Value converter settings for Kafka Connect
+    //===========================================
+    // Specifies that the value will be converted to JSON format.
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    
+    // Enables schema inclusion in the value JSON object.
+    "value.converter.schemas.enable": "true"
+  }
+}

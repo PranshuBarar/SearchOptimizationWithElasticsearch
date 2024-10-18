@@ -3,7 +3,7 @@ spring:
     name: search_optimization_application_v2
 
   datasource:
-    url: jdbc:mysql://localhost:3306/search_optimization_db_v2?createDatabaseIfNotExist=true
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/search_optimization_db_v2?createDatabaseIfNotExist=true
     username: root
     password: pranshubarar
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,9 +16,21 @@ spring:
 
   data:
     elasticsearch:
-      cluster_nodes: "http://localhost:9200"
+      cluster_nodes: "http://${ELASTICSEARCH_HOST:elasticsearch}:9200"
       repositories:
         enabled: true
+
+logging:
+  level:
+    root: trace
+    org:
+      apache:
+        tomcat:
+          util:
+            net:
+              NioEndpoint: OFF
+
+
 
 
 

@@ -1,0 +1,25 @@
+{
+  "name": "search-engine-optimize-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "tasks.max": "1",
+    "database.hostname": "mysql",
+    "database.port": "3306",
+    "database.user": "root",
+    "database.password": "pranshubarar",
+    "database.server.id": "184054",
+    "topic.prefix": "dbserver1",
+    "database.server.name": "dbserver1",
+    "database.include.list": "search_optimization_db",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+    "schema.history.internal.kafka.topic": "schemahistory.search_optimization_db",
+    "database.history.kafka.topic": "history.search_optimization_db",
+    "database.history.kafka.bootstrap.servers": "kafka:9092",
+
+    
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "true",  
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "true" 
+  }
+}

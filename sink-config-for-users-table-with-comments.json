@@ -1,0 +1,45 @@
+{
+  "name": "elasticsearch-sink-connector-for-users", 
+  // Name of the connector instance for managing user data.
+  
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector", 
+    // Specifies that this is an Elasticsearch sink connector, used to push data from Kafka to Elasticsearch.
+    
+    "tasks.max": "1", 
+    // Limits the connector to 1 task, meaning only one worker will handle data transfer to Elasticsearch.
+    
+    "topics": "dbserver1.search_optimization_db.users", 
+    // The Kafka topic to consume data from, in this case for the "users" table from the "search_optimization_db" database.
+
+    "key.ignore": "false", 
+    // Ensures that the key from the Kafka message (e.g., user_id) is used in Elasticsearch to uniquely identify documents.
+    
+    "connection.url": "http://elasticsearch:9200", 
+    // The URL of the Elasticsearch cluster to which the connector will send the data.
+
+    "schema.ignore": "false", 
+    // Indicates that the connector will respect the schema information from the Kafka record, ensuring correct mapping to Elasticsearch fields.
+
+    "type.name": "_doc", 
+    // Specifies the document type in Elasticsearch, typically "_doc" is used for indexing.
+
+    "behavior.on.null.values": "delete", 
+    // If a Kafka message contains a null value, the corresponding document will be deleted from Elasticsearch.
+    
+    "transforms": "unwrap,extractKey", 
+    // A list of transformations to apply to the Kafka messages before sending to Elasticsearch. "unwrap" and "extractKey" will be applied.
+
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState", 
+    // The "unwrap" transform removes the Debezium envelope around the change event, leaving just the updated record fields.
+
+    "transforms.unwrap.drop.tombstones": "false", 
+    // Keeps tombstone messages (which indicate deleted records) in the Kafka topic. These are used to trigger the "delete" operation in Elasticsearch.
+
+    "transforms.extractKey.type": "org.apache.kafka.connect.transforms.ExtractField$Key", 
+    // The "extractKey" transform is used to extract the key field from the Kafka message, which will be used as the document ID in Elasticsearch.
+
+    "transforms.extractKey.field": "user_id" 
+    // Specifies the field to extract from the Kafka message key, which is "user_id", and this will be used as the Elasticsearch document ID.
+  }
+}

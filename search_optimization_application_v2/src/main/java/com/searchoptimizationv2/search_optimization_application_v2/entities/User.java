@@ -1,6 +1,7 @@
 package com.searchoptimizationv2.search_optimization_application_v2.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.searchoptimizationv2.search_optimization_application_v2.ENUM.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,16 +20,15 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "userId")
     private UUID userId;
-
-    @Column(name = "username")
     private String username;
-
-    @Column(name = "email")
     private String email;
+    private int groupId;
+    private int age;
 
-    @Column(name = "password")
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     private String password;
 
     //CHILD//

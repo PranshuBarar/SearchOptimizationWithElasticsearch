@@ -1,0 +1,24 @@
+{
+  "name": "elasticsearch-sink-connector-for-shared_notes",
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+    "tasks.max": "1",
+    "topics": "dbserver1.search_optimization_db.shared_notes",
+    "key.ignore": "false",
+    "connection.url": "http://elasticsearch:9200",
+    "schema.ignore": "false",
+    "type.name": "_doc",
+
+    
+    "transforms": "unwrap,extractKey",
+
+    
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "behavior.on.null.values": "delete",
+    "transforms.unwrap.drop.tombstones": "false",
+
+    "transforms.extractKey.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
+    "transforms.extractKey.field": "sharing_transaction_id"
+    
+  }
+}

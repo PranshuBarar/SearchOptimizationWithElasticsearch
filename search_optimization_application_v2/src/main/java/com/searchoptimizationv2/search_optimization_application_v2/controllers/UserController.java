@@ -1,6 +1,8 @@
 package com.searchoptimizationv2.search_optimization_application_v2.controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.optimization_component.payload.Payload;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.UserDTO;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.UserPasswordUpdateRequest;
 import com.searchoptimizationv2.search_optimization_application_v2.Service.UserService;
@@ -9,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -42,5 +45,9 @@ public class UserController {
         return userService.getUser(userIdString);
     }
 
+    @GetMapping("/searchUser")
+    public List<User> searchUser(@RequestBody Payload payload) throws IOException {
+        return userService.searchUser(payload);
+    }
 
 }

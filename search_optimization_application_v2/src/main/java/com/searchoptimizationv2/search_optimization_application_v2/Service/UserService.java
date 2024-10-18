@@ -1,6 +1,8 @@
 package com.searchoptimizationv2.search_optimization_application_v2.Service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.optimization_component.payload.Payload;
 import com.optimization_component.service.ElasticSearchServiceImpl;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.UserDTO;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.UserPasswordUpdateRequest;
@@ -10,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,6 +33,9 @@ public class UserService {
                 .email(userDTO.getEmail())
                 .password(userDTO.getPassword())
                 .username(userDTO.getUsername())
+                .age(userDTO.getAge())
+                .status(userDTO.getStatus())
+                .groupId(userDTO.getGroupId())
                 .build();
 
 
@@ -72,5 +78,9 @@ public class UserService {
     public User getUser(String userIdString){
         UUID userId = UUID.fromString(userIdString);
         return userRepository.findById(userId).orElseThrow();
+    }
+
+    public List<User> searchUser(Payload payload) throws IOException {
+        return elasticSearchService.search(User.class.getName().toLowerCase(), payload);
     }
 }
