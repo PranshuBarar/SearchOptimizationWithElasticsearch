@@ -5,10 +5,8 @@ import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.json.JsonData;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.optimization_component.enums.LogicalOperator;
-import com.optimization_component.payload.Filter;
+import com.optimization_component.payload.LeafFilter;
 import com.optimization_component.service.interfaces.ElasticSearchService;
 import com.optimization_component.payload.Payload;
 import lombok.AllArgsConstructor;
@@ -54,34 +52,34 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
 
         BoolQuery.Builder boolQuery = new BoolQuery.Builder();
 
-        List<Filter> filters = payload.getFilters();
+        List<LeafFilter> leafFilters = payload.getFilters();
 
-        for(int i=0; i<filters.size(); i++){
-            Filter filter = filters.get(i);
+        for(int i = 0; i< leafFilters.size(); i++){
+            LeafFilter leafFilter = leafFilters.get(i);
 
-            //We will check the second filter's operator for deciding whether first will
+            //We will check the second leafFilter's operator for deciding whether first will
             //go into "should" or "must" [BUT THIS WILL BE DONE ONLY FOR FIRST FILTER]
             if(i == 0) {
-                if(filters.size() == 1){
-                    //it means only one filter is there and this will be added to "must" clause
-                    addToMustClause(boolQuery,filter);
+                if(leafFilters.size() == 1){
+                    //it means only one leafFilter is there and this will be added to "must" clause
+                    addToMustClause(boolQuery, leafFilter);
                 }
                 else {
-                    //extract logicalOperator from second filter
-                    LogicalOperator logicalOperatorOfSecondFilter = filters.get(1).getLogicalOperator();
+                    //extract logicalOperator from second leafFilter
+                    LogicalOperator logicalOperatorOfSecondFilter = leafFilters.get(1).getLogicalOperator();
                     if(logicalOperatorOfSecondFilter.equals(LogicalOperator.OR)){
-                        //so in this case this first filter will be added to the "should" clause
-                        addToShouldClause(boolQuery,filter);
+                        //so in this case this first leafFilter will be added to the "should" clause
+                        addToShouldClause(boolQuery, leafFilter);
                     } else {
-                        //this first filter will be added to the "must" clause
-                        addToMustClause(boolQuery,filter);
+                        //this first leafFilter will be added to the "must" clause
+                        addToMustClause(boolQuery, leafFilter);
                     }
                 }
             } else {
-                if(filter.getLogicalOperator().equals(LogicalOperator.OR)){
-                    addToShouldClause(boolQuery,filter);
+                if(leafFilter.getLogicalOperator().equals(LogicalOperator.OR)){
+                    addToShouldClause(boolQuery, leafFilter);
                 } else {
-                    addToMustClause(boolQuery,filter);
+                    addToMustClause(boolQuery, leafFilter);
                 }
             }
         }
@@ -102,27 +100,27 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
 
     }
 
-    private void addToShouldClause(BoolQuery.Builder boolQuery, Filter filter) {
-        boolQuery.should(buildQuery(filter));
+    private void addToShouldClause(BoolQuery.Builder boolQuery, LeafFilter leafFilter) {
+        boolQuery.should(buildQuery(leafFilter));
     }
 
-    private void addToMustClause(BoolQuery.Builder boolQuery, Filter filter) {
-        boolQuery.must(buildQuery(filter));
+    private void addToMustClause(BoolQuery.Builder boolQuery, LeafFilter leafFilter) {
+        boolQuery.must(buildQuery(leafFilter));
     }
 
-    private Query buildQuery(Filter filter) {
+    private Query buildQuery(LeafFilter leafFilter) {
 
 
-        Object value = filter.getValue();
+        Object value = leafFilter.getValue();
         String field;
 
         if(value instanceof String){
-            field = filter.getField() + ".keyword";
+            field = leafFilter.getField() + ".keyword";
         } else {
-            field = filter.getField();
+            field = leafFilter.getField();
         }
 
-        switch (filter.getComparisonOperator()) {
+        switch (leafFilter.getComparisonOperator()) {
             case EQUALS:
                 return Query.of(q -> q.term(t -> t.field(field).value((FieldValue.of(value)))));
 
@@ -137,7 +135,7 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
                 return Query.of(q -> q.range(r -> r.field(field).gte(JsonData.of(map.get("from"))).lte(JsonData.of(map.get("to")))));
             }
             default:
-                    throw new UnsupportedOperationException("Unknown comparison operator: " + filter.getComparisonOperator());
+                    throw new UnsupportedOperationException("Unknown comparison operator: " + leafFilter.getComparisonOperator());
         }
     }
 }
