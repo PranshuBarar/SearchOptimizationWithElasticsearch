@@ -1,5 +1,6 @@
 package com.searchoptimizationv2.search_optimization_application_v2.Service;
 
+import com.optimization_component.payload.Payload;
 import com.optimization_component.service.ElasticSearchServiceImpl;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.NoteDTO;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.NoteUpdateRequest;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -71,5 +73,8 @@ public class NoteService{
         UUID noteId = UUID.fromString(noteIdString);
         return noteRepository.findById(noteId).orElseThrow();
     }
-    
+
+    public List<Note> searchNote(Payload payload) throws IOException {
+        return elasticSearchService.search(Note.class.getName().toLowerCase(), payload);
+    }
 }
