@@ -1,6 +1,5 @@
 package com.optimization_component.service.interfaces;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.optimization_component.payload.Payload;
 
 import java.io.IOException;

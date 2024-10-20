@@ -5,12 +5,10 @@ import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.json.JsonData;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.optimization_component.enums.LogicalOperator;
 import com.optimization_component.payload.Filter;
-import com.optimization_component.service.interfaces.ElasticSearchService;
 import com.optimization_component.payload.Payload;
+import com.optimization_component.service.interfaces.ElasticSearchService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
