@@ -5,7 +5,7 @@ plugins {
 	id 'maven-publish'
 }
 
-group = 'com.elasticsearch_component'
+group = 'com.elasticsearch_component_recursive'
 version = '0.0.1-SNAPSHOT'
 
 java {
