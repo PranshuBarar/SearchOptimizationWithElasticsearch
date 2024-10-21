@@ -7,5 +7,6 @@ public enum Operator {
     EQUALS,
     GREATER_THAN,
     LESS_THAN,
-    BETWEEN
+    BETWEEN,
+    EQ
 }

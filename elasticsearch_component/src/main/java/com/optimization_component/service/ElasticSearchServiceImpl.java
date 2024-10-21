@@ -1,7 +1,11 @@
 package com.optimization_component.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import com.optimization_component.payload.interfaces.Filter;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.json.JsonData;
+import com.optimization_component.payload.Filter;
 import com.optimization_component.service.interfaces.ElasticSearchService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,12 +18,10 @@ import java.util.Map;
 @Service
 @AllArgsConstructor
 public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
-
     private final ElasticsearchClient elasticClient;
 
     @Override
     public void save(String indexName, String _id, T entity) throws IOException {
-
         elasticClient.index(i -> i
                 .index(indexName)
                 .id(_id)
@@ -42,15 +44,59 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
     to be performed, on what basis, what parameters etc.
     */
     @Override
-    public List<T> search(String indexName, Filter filter) throws IOException {
-        System.out.println("This is filter " + filter);
+    public List<T> search(String indexName, Filter filter) throws Exception {
+
+        BoolQuery.Builder boolQuery = new BoolQuery.Builder();
+
         return List.of();
+
+    }
+
+    private void queryBuilder(BoolQuery.Builder boolQuery, Filter filter){
+
+
+        /*
+            Below is the structure of Filter class
+            public class Filter {
+                private Operator operator;
+                private String field;
+                private Object value;
+                private List<Filter> filters;
+            }
+            There can be two cases:
+            Either
+            1) The "field" && "value" both will be null and "filters"
+            list will be non-null -> which means we have to go more deep into recursion
+            OR
+            2) The "filters" field will be null and "field" && "value"
+            both will be non-null -> which means its a leaf filter and its a base-case
+            and we have to return
+
+            !! Note: Its very important to keep in mind that both:
+            => "field" && "value" pair
+            and
+            => "filters"
+            can't neither be "null" nor "non-null" at the same time, as it will be
+            ambiguous case
+        */
+
+        //So now let's first define base-case:
+        if(filter.getField() != null && filter.getValue() != null && filter.getFilters() == null){
+            //so this is base-case
+
+        }
+
+
+
+
+
+
     }
 }
 
-    //        BoolQuery.Builder boolQuery = new BoolQuery.Builder();
+
 //
-//        List<LeafFilter> leafFilters = payload.getFilters();
+//
 //
 //        for(int i = 0; i< leafFilters.size(); i++){
 //            LeafFilter leafFilter = leafFilters.get(i);
@@ -80,7 +126,7 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
 //                    addToMustClause(boolQuery, leafFilter);
 //                }
 //            }
-
+//
 //        Query query = Query.of(q -> q.bool(boolQuery.build()));
 //
 //        //See now we have the query now I want to send this query to search api of elasticsearch and receive the result
