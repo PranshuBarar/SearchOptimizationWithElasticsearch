@@ -14,12 +14,16 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static com.optimization_component.enums.Operator.*;
 
 @Service
 @AllArgsConstructor
 public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
+
+    private static final Logger logger = Logger.getLogger(ElasticSearchServiceImpl.class.getName());
+
     private final ElasticsearchClient elasticClient;
 
     @Override
@@ -45,6 +49,7 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
     @Override
     public List<T> search(String indexName, Filter filter) throws Exception {
         Query query = queryBuilder(filter);
+        logger.info("This is the query : " + query);
 
         var searchResponse = elasticClient.search(s -> s
                 .index(indexName)
