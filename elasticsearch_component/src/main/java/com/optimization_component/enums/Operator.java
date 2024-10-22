@@ -3,10 +3,35 @@ package com.optimization_component.enums;
 public enum Operator {
     OR,
     AND,
-    NULL,
-    EQUALS,
-    GREATER_THAN,
-    LESS_THAN,
+
+    EQ,
+    NEQ,
+    IN,
+    NOT_IN,
+    IS_NULL,
+    NOT_NULL,
+    GT,
+    LT,
+    GTE,
+    LTE,
+    LIKE,
     BETWEEN,
-    EQ
+
+
+
+//    EQ,=
+//    NEQ,=
+//    IN,=
+//    NOT_IN,=
+//    IS_NULL,=
+//    NOT_NULL,=
+//    AND,=
+//    OR,=
+//    GT,=
+//    LT,=
+//    GTE,=
+//    LTE,=
+//    BETWEEN,=
+//    LIKE;=
 }
+

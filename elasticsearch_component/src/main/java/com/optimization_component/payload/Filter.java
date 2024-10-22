@@ -15,3 +15,6 @@ public class Filter {
     private Object value;
     private List<Filter> filters;
 }
+
+
+

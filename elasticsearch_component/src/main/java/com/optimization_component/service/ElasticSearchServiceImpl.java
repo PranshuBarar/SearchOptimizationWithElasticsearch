@@ -4,6 +4,8 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryFieldBuilders;
 import co.elastic.clients.json.JsonData;
 import com.optimization_component.payload.Filter;
 import com.optimization_component.service.interfaces.ElasticSearchService;
@@ -138,25 +140,51 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
         Object value = filter.getValue();
         String field;
 
-        if (value instanceof String) {
+        if (value instanceof String ||
+                ((value instanceof List<?>)
+                && (!((List<?>) value).isEmpty())
+                && (((List<?>) value).get(0) instanceof String))) {
             field = filter.getField() + ".keyword";
         } else {
             field = filter.getField();
         }
         switch (filter.getOperator()) {
+
+            case NOT_IN:
+                assert value instanceof List<?>;
+                List<?> valuesNot_IN = (List<?>) value; // assuming value is a List of values
+                return Query.of(q -> q.bool(b -> b.mustNot(mn -> mn.terms(t -> t.field(field).terms(terms -> terms.value(valuesNot_IN.stream().map(FieldValue::of).toList()))))));
+
+            case IN:
+                assert value instanceof List<?>;
+                List<?> valuesIN = (List<?>) value; // assuming value is a List of values
+                return Query.of(q -> q.terms(t -> t.field(field).terms(terms -> terms.value(valuesIN.stream().map(FieldValue::of).toList()))));
+
+            case NEQ:
+                return Query.of(q -> q.bool(b -> b.mustNot(mn -> mn.term(t -> t.field(field).value(FieldValue.of(value))))));
+
             case EQ:
                 return Query.of(q -> q.term(t -> t.field(field).value((FieldValue.of(value)))));
 
-            case GREATER_THAN:
+            case GT:
                 return Query.of(q -> q.range(r -> r.field(field).gt(JsonData.of(value))));
 
-            case LESS_THAN:
+            case LT:
                 return Query.of(q -> q.range(r -> r.field(field).lt((JsonData.of(value)))));
+
+            case LTE:
+                return Query.of(q -> q.range(r -> r.field(field).lte(JsonData.of(value))));
+
+            case GTE:
+                return Query.of(q -> q.range(r -> r.field(field).gte(JsonData.of(value))));
 
             case BETWEEN: {
                 Map<String, Object> map = (LinkedHashMap<String, Object>) value;
                 return Query.of(q -> q.range(r -> r.field(field).gte(JsonData.of(map.get("from"))).lte(JsonData.of(map.get("to")))));
             }
+
+
+
             default:
                 throw new UnsupportedOperationException("Unknown comparison operator: " + filter.getOperator());
         }
