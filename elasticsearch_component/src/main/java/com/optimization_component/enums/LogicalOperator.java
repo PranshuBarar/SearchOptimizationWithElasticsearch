@@ -5,3 +5,5 @@ public enum LogicalOperator {
     AND,
     NULL
 }
+
+

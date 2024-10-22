@@ -15,11 +15,15 @@ public class Filter {
     private ComparisonOperator comparisonOperator;
     private LogicalOperator logicalOperator;
 
-    public Filter(String field, Object value, ComparisonOperator comparisonOperator, LogicalOperator logicalOperator) {
+    public Filter(String field, Object value,
+                  ComparisonOperator comparisonOperator,
+                  LogicalOperator logicalOperator) {
         this.field = field;
         this.value = value;
         this.comparisonOperator = comparisonOperator;
         this.logicalOperator = logicalOperator;
     }
 }
+
+
 

@@ -25,7 +25,6 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
 
     @Override
     public void save(String indexName, String _id,  T entity) throws IOException {
-
         elasticClient.index(i -> i
                 .index(indexName)
                 .id(_id)
@@ -35,7 +34,6 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
 
     @Override
     public void delete(String indexName, String _id) throws IOException {
-
         elasticClient.delete(d -> d
                 .index(indexName)
                 .id(_id)
@@ -43,20 +41,13 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
     }
 
 
-    /*
-    Search is incomplete as of now. A discussion is required on how the searches have
-    to be performed, on what basis, what parameters etc.
-    */
+
     @Override
     public List<T> search(String indexName, Payload payload) throws IOException {
-
         BoolQuery.Builder boolQuery = new BoolQuery.Builder();
-
         List<Filter> filters = payload.getFilters();
-
         for(int i=0; i<filters.size(); i++){
             Filter filter = filters.get(i);
-
             //We will check the second filter's operator for deciding whether first will
             //go into "should" or "must" [BUT THIS WILL BE DONE ONLY FOR FIRST FILTER]
             if(i == 0) {
@@ -68,7 +59,7 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
                     //extract logicalOperator from second filter
                     LogicalOperator logicalOperatorOfSecondFilter = filters.get(1).getLogicalOperator();
                     if(logicalOperatorOfSecondFilter.equals(LogicalOperator.OR)){
-                        //so in this case this first filter will be added to the "should" clause
+                        //so in this case, this first filter will be added to the "should" clause
                         addToShouldClause(boolQuery,filter);
                     } else {
                         //this first filter will be added to the "must" clause
@@ -83,21 +74,16 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
                 }
             }
         }
-
         Query query = Query.of(q -> q.bool(boolQuery.build()));
-
-        //See now we have the query now I want to send this query to search api of elasticsearch and receive the result
-        //so how to do that here?
+        //Now we have the query now we want to send this query to search api of elasticsearch and receive the result
         var searchResponse = elasticClient.search(s -> s
                 .index(indexName)
                 .query(query),
                 Object.class
         );
-
         return searchResponse.hits().hits().stream()
                 .map(hit -> (T) hit.source())
                 .toList();
-
     }
 
     private void addToShouldClause(BoolQuery.Builder boolQuery, Filter filter) {
@@ -113,7 +99,6 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
 
         Object value = filter.getValue();
         String field;
-
         if(value instanceof String){
             field = filter.getField() + ".keyword";
         } else {
@@ -123,19 +108,26 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
         switch (filter.getComparisonOperator()) {
             case EQUALS:
                 return Query.of(q -> q.term(t -> t.field(field).value((FieldValue.of(value)))));
-
             case GREATER_THAN:
                 return Query.of(q -> q.range(r -> r.field(field).gt(JsonData.of(value))));
-
             case LESS_THAN:
                 return Query.of(q -> q.range(r -> r.field(field).lt((JsonData.of(value)))));
-
             case BETWEEN: {
                 Map<String,Object> map = (LinkedHashMap<String, Object>) value;
-                return Query.of(q -> q.range(r -> r.field(field).gte(JsonData.of(map.get("from"))).lte(JsonData.of(map.get("to")))));
+                return Query.of(q -> q.range(r -> r
+                        .field(field)
+                        .gte(JsonData.of(map.get("from")))
+                        .lte(JsonData.of(map.get("to")))));
             }
             default:
-                    throw new UnsupportedOperationException("Unknown comparison operator: " + filter.getComparisonOperator());
+                    throw new UnsupportedOperationException("Unknown comparison operator: "
+                            + filter.getComparisonOperator());
         }
     }
 }
+
+
+
+
+
+
