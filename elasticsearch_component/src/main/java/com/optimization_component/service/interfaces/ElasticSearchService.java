@@ -12,3 +12,5 @@ public interface ElasticSearchService<T> {
     List<T> search(String indexName, Filter filter) throws Exception;
 
 }
+
+

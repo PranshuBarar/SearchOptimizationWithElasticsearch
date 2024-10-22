@@ -1,8 +1,7 @@
 package com.searchoptimizationv2.search_optimization_application_v2.controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.optimization_component.payload.Payload;
+import com.optimization_component.payload.Filter;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.UserDTO;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.UserPasswordUpdateRequest;
 import com.searchoptimizationv2.search_optimization_application_v2.Service.UserService;
@@ -46,8 +45,8 @@ public class UserController {
     }
 
     @GetMapping("/searchUser")
-    public List<User> searchUser(@RequestBody Payload payload) throws IOException {
-        return userService.searchUser(payload);
+    public List<User> searchUser(@RequestBody Filter filter) throws Exception {
+        return userService.searchUser(filter);
     }
 
 }

@@ -94,29 +94,36 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
             and
             => "filters"
             can't neither be "null" nor "non-null" at the same time, as it will be
-            ambiguous case
+            an ambiguous case
         */
         BoolQuery.Builder builder = new BoolQuery.Builder();
 
-        //So now let's first define base-case:
+        //So now let's first define a base-case:
         if (((filter.getField() != null && filter.getValue() != null) && filter.getFilters() == null)) {
             return buildQuery(filter);
-        } else if ((filter.getField() == null && filter.getValue() == null) && filter.getFilters().size() == 1) {
-            return builder.must(buildQuery(filter.getFilters().get(0))).build()._toQuery();
+        }
+
+        /*
+        Now if the filters' list has been received by that list contains only one filter inside it, then in
+        that case, the query for that one filter item will be caught in the "must" clause.
+        As top level logical operator is only relevant when there is more than one item in the filter's list.
+        Having only one filter item in the list makes top-level operator irrelevant
+        * */
+
+        else if ((filter.getField() == null && filter.getValue() == null) && filter.getFilters().size() == 1) {
+            Filter firstFilter = filter.getFilters().get(0);
+            Query query = queryBuilder(firstFilter);
+            return builder.must(query).build()._toQuery();
         }
 
 
-        //if code reaches this point it means "field" and "value" both are null and "filters' list" is not null &&
-        //its size > 1
+        //if code reaches this point, it means "field" and "value" both are null and "filters' list" is not null &&
+        //its size > 1,
         //So this is the perfect case for recursion
 
         for(Filter currentFilter : filter.getFilters()){
             //going deep into recursion:
             Query query = queryBuilder(currentFilter);
-
-            if(filter.getFilters().size() == 1){
-                return query;
-            }
             if(filter.getOperator() == AND) {
                 builder.must(query);
             }

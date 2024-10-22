@@ -1,6 +1,5 @@
 package com.searchoptimizationv2.search_optimization_application_v2.Service;
 
-import com.optimization_component.payload.Payload;
 import com.optimization_component.service.ElasticSearchServiceImpl;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.NoteDTO;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.NoteUpdateRequest;
@@ -74,7 +73,7 @@ public class NoteService{
         return noteRepository.findById(noteId).orElseThrow();
     }
 
-    public List<Note> searchNote(Payload payload) throws IOException {
-        return elasticSearchService.search(Note.class.getName().toLowerCase(), payload);
-    }
+//    public List<Note> searchNote(Filter filter) throws IOException {
+//        return elasticSearchService.search(Note.class.getName().toLowerCase(), filter);
+//    }
 }

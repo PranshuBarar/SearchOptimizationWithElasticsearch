@@ -1,8 +1,6 @@
 package com.searchoptimizationv2.search_optimization_application_v2.Service;
 
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.optimization_component.payload.Payload;
+import com.optimization_component.payload.Filter;
 import com.optimization_component.service.ElasticSearchServiceImpl;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.UserDTO;
 import com.searchoptimizationv2.search_optimization_application_v2.DTOs.UserPasswordUpdateRequest;
@@ -80,7 +78,7 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow();
     }
 
-    public List<User> searchUser(Payload payload) throws IOException {
-        return elasticSearchService.search(User.class.getName().toLowerCase(), payload);
+    public List<User> searchUser(Filter filter) throws Exception {
+        return elasticSearchService.search(User.class.getName().toLowerCase(), filter);
     }
 }
