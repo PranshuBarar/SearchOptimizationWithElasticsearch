@@ -1,9 +1,9 @@
 package com.optimization_component.enums;
 
 public enum Operator {
+
     OR,
     AND,
-
     EQ,
     NEQ,
     IN,
@@ -17,6 +17,7 @@ public enum Operator {
     LIKE,
     BETWEEN,
 
+}
 
 
 //    EQ,=
@@ -33,5 +34,5 @@ public enum Operator {
 //    LTE,=
 //    BETWEEN,=
 //    LIKE;=
-}
+
 

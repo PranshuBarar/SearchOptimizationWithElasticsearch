@@ -4,8 +4,6 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
-import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryFieldBuilders;
 import co.elastic.clients.json.JsonData;
 import com.optimization_component.payload.Filter;
 import com.optimization_component.service.interfaces.ElasticSearchService;
@@ -150,6 +148,15 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
         }
         switch (filter.getOperator()) {
 
+            case LIKE:
+
+
+            case IS_NULL:
+                return Query.of(q -> q.bool(b -> b.mustNot(mn -> mn.exists(e -> e.field(field)))));
+
+            case NOT_NULL:
+                return Query.of(q -> q.exists(e -> e.field(field)));
+
             case NOT_IN:
                 assert value instanceof List<?>;
                 List<?> valuesNot_IN = (List<?>) value; // assuming value is a List of values
@@ -182,8 +189,6 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
                 Map<String, Object> map = (LinkedHashMap<String, Object>) value;
                 return Query.of(q -> q.range(r -> r.field(field).gte(JsonData.of(map.get("from"))).lte(JsonData.of(map.get("to")))));
             }
-
-
 
             default:
                 throw new UnsupportedOperationException("Unknown comparison operator: " + filter.getOperator());
