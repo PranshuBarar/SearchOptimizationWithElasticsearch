@@ -50,17 +50,14 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
     public List<T> search(String indexName, Filter filter) throws Exception {
         Query query = queryBuilder(filter);
         logger.info("This is the query : " + query);
-
         var searchResponse = elasticClient.search(s -> s
                 .index(indexName)
                 .query(query),
                 Object.class
         );
-
         return searchResponse.hits().hits().stream()
                 .map(hit -> (T) hit.source())
                 .toList();
-
     }
 
     private Query queryBuilder(Filter filter) {
@@ -137,7 +134,6 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
     private Query buildQuery(Filter filter) {
         Object value = filter.getValue();
         String field;
-
         if (value instanceof String ||
                 ((value instanceof List<?>)
                 && (!((List<?>) value).isEmpty())
@@ -147,49 +143,43 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
             field = filter.getField();
         }
         switch (filter.getOperator()) {
-
             case LIKE:
-
-
+                return Query.of(q -> q.wildcard(w -> w.field(field).value(value + "*")));
             case IS_NULL:
                 return Query.of(q -> q.bool(b -> b.mustNot(mn -> mn.exists(e -> e.field(field)))));
-
             case NOT_NULL:
                 return Query.of(q -> q.exists(e -> e.field(field)));
-
             case NOT_IN:
                 assert value instanceof List<?>;
                 List<?> valuesNot_IN = (List<?>) value; // assuming value is a List of values
-                return Query.of(q -> q.bool(b -> b.mustNot(mn -> mn.terms(t -> t.field(field).terms(terms -> terms.value(valuesNot_IN.stream().map(FieldValue::of).toList()))))));
-
+                return Query.of(q -> q.bool(b -> b
+                        .mustNot(mn -> mn
+                                .terms(t -> t
+                                        .field(field).terms(terms -> terms
+                                                .value(valuesNot_IN
+                                                        .stream()
+                                                        .map(FieldValue::of)
+                                                        .toList()))))));
             case IN:
                 assert value instanceof List<?>;
                 List<?> valuesIN = (List<?>) value; // assuming value is a List of values
                 return Query.of(q -> q.terms(t -> t.field(field).terms(terms -> terms.value(valuesIN.stream().map(FieldValue::of).toList()))));
-
             case NEQ:
                 return Query.of(q -> q.bool(b -> b.mustNot(mn -> mn.term(t -> t.field(field).value(FieldValue.of(value))))));
-
             case EQ:
                 return Query.of(q -> q.term(t -> t.field(field).value((FieldValue.of(value)))));
-
             case GT:
                 return Query.of(q -> q.range(r -> r.field(field).gt(JsonData.of(value))));
-
             case LT:
                 return Query.of(q -> q.range(r -> r.field(field).lt((JsonData.of(value)))));
-
             case LTE:
                 return Query.of(q -> q.range(r -> r.field(field).lte(JsonData.of(value))));
-
             case GTE:
                 return Query.of(q -> q.range(r -> r.field(field).gte(JsonData.of(value))));
-
             case BETWEEN: {
                 Map<String, Object> map = (LinkedHashMap<String, Object>) value;
                 return Query.of(q -> q.range(r -> r.field(field).gte(JsonData.of(map.get("from"))).lte(JsonData.of(map.get("to")))));
             }
-
             default:
                 throw new UnsupportedOperationException("Unknown comparison operator: " + filter.getOperator());
         }

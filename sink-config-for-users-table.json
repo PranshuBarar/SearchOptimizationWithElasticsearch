@@ -17,7 +17,7 @@
     "transforms.unwrap.drop.tombstones": "false",
 
     "transforms.extractKey.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
-    "transforms.extractKey.field": "user_id"
+    "transforms.extractKey.field": "email,username"
     
   }
 }
