@@ -42,10 +42,7 @@ public class ElasticSearchServiceImpl<T> implements ElasticSearchService<T> {
                 .id(_id)
         );
     }
-    /*
-    Search is incomplete as of now. A discussion is required on how the searches have
-    to be performed, on what basis, what parameters etc.
-    */
+
     @Override
     public List<T> search(String indexName, Filter filter) throws Exception {
         Query query = queryBuilder(filter);
